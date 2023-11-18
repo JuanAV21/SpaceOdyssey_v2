@@ -11,4 +11,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(new SpaceShooter(this));
     }
+
+    @Override
+    protected void onDestroy() {super.onDestroy();}
+
+    @Override
+    protected void onPause() {super.onPause();}
 }

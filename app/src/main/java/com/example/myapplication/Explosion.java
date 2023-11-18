@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 
 public class Explosion {
 
-    Bitmap explosion[] = new Bitmap[9];
+    Bitmap explosion[] = new Bitmap[8];
     int explosionFrame;
     int eX, eY;
 

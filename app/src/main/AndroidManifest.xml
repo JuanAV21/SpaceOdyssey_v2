@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
         <activity
-            android:name=".MainActivity"
+            android:name=".StartUp"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,9 +19,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StartUp"
+            android:name=".MainActivity"
             android:exported="true">
-
         </activity>
     </application>
 

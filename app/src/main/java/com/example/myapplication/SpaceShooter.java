@@ -15,7 +15,6 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Random;
-//import java.util.logging.Handler;
 import android.os.Handler;
 
 public class SpaceShooter extends View {
@@ -37,6 +36,7 @@ public class SpaceShooter extends View {
     Explosion explosion;
     ArrayList<Explosion> explosions;
     boolean enemyShotAction = false;
+
     final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -58,75 +58,87 @@ public class SpaceShooter extends View {
         screenHeight = size.y;
         ourSpaceship = new OurSpaceship(context);
         enemySpaceship = new EnemySpaceship(context);
+        handler = new Handler();
         background = BitmapFactory.decodeResource(context.getResources(), R.drawable.space);
-        lifeImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.ship);
+        lifeImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.shiplife);
         scorePaint = new Paint();
         scorePaint.setColor(Color.RED);
         scorePaint.setTextSize(TEXT_SIZE);
         scorePaint.setTextAlign(Paint.Align.LEFT);
-
-
-
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(background, 0, 0, null);
         canvas.drawText("Pt: " + points, 0, TEXT_SIZE, scorePaint);
+
+        //Draw lives on screen
         for (int i = life; i >= 1; i--) {
             canvas.drawBitmap(lifeImage,
                     screenWidth - lifeImage.getWidth() * i, 0, null);
         }
+
+        //When player runs out of lives
         if (life == 0) {
             paused = true;
             handler = null;
-            /*Intent intent = new Intent(context, GameOver.class);
+            Intent intent = new Intent(context, GameOver.class);
             intent.putExtra("points", points);
-            context.startActivity(intent);*/
+            context.startActivity(intent);
             ((Activity) context).finish();
-
         }
+
+        //move enemy
         enemySpaceship.ex += enemySpaceship.enemyVelocity;
+
+        //turn enemy back both sides of screen
         if (enemySpaceship.ex + enemySpaceship.getEnemySpaceshipWidth() >= screenWidth) {
             enemySpaceship.enemyVelocity *= -1;
         }
         if (enemySpaceship.ex <= 0) {
             enemySpaceship.enemyVelocity *= -1;
         }
+
+        //part of the shooting mechanism
+
         if ((enemyShotAction == false) && (enemySpaceship.ex >= 200 + random.nextInt(400))) {
             Shot enemyShot = new Shot(context, enemySpaceship.ex + enemySpaceship.getEnemySpaceshipWidth() / 2, enemySpaceship.ey);
             enemyShots.add(enemyShot);
             enemyShotAction = true;
         }
-        if (!enemyExplosion) {
-            canvas.drawBitmap(enemySpaceship.getEnemySpaceship(), enemySpaceship.ex, enemySpaceship.ey, null);
+
+        canvas.drawBitmap(enemySpaceship.getEnemySpaceship(), enemySpaceship.ex, enemySpaceship.ey-370, null);
+
+
+        if (ourSpaceship.ox > screenWidth - ourSpaceship.getOurSpaceshipWidth()) {
+            ourSpaceship.ox = screenWidth - ourSpaceship.getOurSpaceshipWidth();
+        } else if (ourSpaceship.ox < 0) {
+            ourSpaceship.ox = 0;
         }
-        if (ourSpaceship.isAlive = true) {
-            if (ourSpaceship.ox > screenWidth - ourSpaceship.getOurSpaceshipWidth()) {
-                ourSpaceship.ox = screenWidth - ourSpaceship.getOurSpaceshipWidth();
-            } else if (ourSpaceship.ox < 0) {
-                ourSpaceship.ox = 0;
-            }
-            canvas.drawBitmap(ourSpaceship.getOurSpaceship(), ourSpaceship.ox, ourSpaceship.oy, null);
-        }
+
+        canvas.drawBitmap(ourSpaceship.getOurSpaceship(), ourSpaceship.ox, ourSpaceship.oy, null);
+
         for (int i = 0; i < enemyShots.size(); i++) {
             enemyShots.get(i).shy += 15;
             canvas.drawBitmap(enemyShots.get(i).getShot(), enemyShots.get(i).shx, enemyShots.get(i).shy, null);
             if ((enemyShots.get(i).shx >= ourSpaceship.ox) &&
-                    (enemyShots.get(i).shx <= ourSpaceship.ox + ourSpaceship.getOurSpaceshipWidth()
+                    (enemyShots.get(i).shx <= ourSpaceship.ox + ourSpaceship.getOurSpaceshipWidth())
                             && (enemyShots.get(i).shy >= ourSpaceship.oy)
-                            && (enemyShots.get(i).shy <= screenHeight))) {
+                            && (enemyShots.get(i).shy <= screenHeight)) {
                 life--;
+
                 enemyShots.remove(i);
                 explosion = new Explosion(context, ourSpaceship.ox, ourSpaceship.oy);
                 explosions.add(explosion);
             } else if (enemyShots.get(i).shy >= screenHeight) {
                 enemyShots.remove(i);
+                points++;
             }
-            if (enemyShots.size() == 0) {
+            if (enemyShots.size() < 1) {
                 enemyShotAction = false;
-
             }
         }
+
         for (int i = 0; i < ourShots.size(); i++) {
             ourShots.get(i).shy -= 15;
             canvas.drawBitmap(ourShots.get(i).getShot(), ourShots.get(i).shx, ourShots.get(i).shy, null);
@@ -142,13 +154,12 @@ public class SpaceShooter extends View {
                 ourShots.remove(i);
             }
         }
-
         for (int i = 0; i < explosions.size(); i++) {
             canvas.drawBitmap(explosions.get(i).getExplosion(explosions.get(i).explosionFrame),
                     explosions.get(i).eX,
                     explosions.get(i).eY, null);
             explosions.get(i).explosionFrame++;
-            if (explosions.get(i).explosionFrame > 8) {
+            if (explosions.get(i).explosionFrame > 7) {
                 explosions.remove(i);
             }
         }
@@ -159,12 +170,6 @@ public class SpaceShooter extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event){
         int touchX = (int) event.getX();
-        if(event.getAction()==MotionEvent.ACTION_UP){
-            if(ourShots.size() < 3){
-                Shot ourShot = new Shot(context, ourSpaceship.ox + ourSpaceship.getOurSpaceshipWidth()/2, ourSpaceship.oy);
-                ourShots.add(ourShot);
-            }
-        }
         if(event.getAction()==MotionEvent.ACTION_DOWN){
             ourSpaceship.ox = touchX;
         }
