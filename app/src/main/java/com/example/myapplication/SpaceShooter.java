@@ -44,6 +44,11 @@ public class SpaceShooter extends View {
         }
     };
 
+    public void startGame(View view) {
+        Intent intent = new Intent(getContext(), SpaceShooter.class);
+        getContext().startActivity(intent);
+    }
+
     public SpaceShooter(Context context){
         super(context);
         this.context = context;
@@ -81,12 +86,16 @@ public class SpaceShooter extends View {
         //When player runs out of lives
         if (life == 0) {
             paused = true;
-            handler = null;
+            handler.removeCallbacks(runnable); // Remove callbacks
             Intent intent = new Intent(context, GameOver.class);
             intent.putExtra("points", points);
             context.startActivity(intent);
             ((Activity) context).finish();
         }
+
+
+        if (!paused)
+            handler.postDelayed(runnable, UPDATE_Millis);
 
         //move enemy
         enemySpaceship.ex += enemySpaceship.enemyVelocity;
@@ -163,6 +172,7 @@ public class SpaceShooter extends View {
                 explosions.remove(i);
             }
         }
+
         if (!paused)
             handler.postDelayed(runnable, UPDATE_Millis);
     }

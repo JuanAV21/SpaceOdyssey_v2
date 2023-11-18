@@ -41,8 +41,7 @@
         android:onClick="startGame"
         android:text="Start"
         android:textColor="@color/black"
-        android:textSize="40sp"
-        />
+        android:textSize="40sp" />
 
     <TextView
         android:id="@+id/textView3"

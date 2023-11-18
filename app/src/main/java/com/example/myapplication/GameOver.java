@@ -11,12 +11,19 @@ import android.widget.TextView;
 public class GameOver extends AppCompatActivity {
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_over);
     }
-    public void restart(View view){
-        Intent intent = new Intent(GameOver.this, StartUp.class);
+
+    public void startGame(View view) {
+        Intent intent = new Intent(this, GameActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void restart(View view) {
+        Intent intent = new Intent(this, StartUp.class);
         startActivity(intent);
         finish();
     }
